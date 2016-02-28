@@ -99,7 +99,19 @@ app.use(function (req, res, next) {
 	next();
 });
 
-app.use('/', routes);
+var routesConfig = {
+//set useBasicAuth to true if you want to authehticate adminMongo loggins
+  //this will be true unless AM_CONFIG_BASICAUTH_USERNAME is set and is the empty string
+  useBasicAuth: process.env.AM_CONFIG_BASICAUTH_USERNAME !== '',
+
+  basicAuth: {
+    username: process.env.AM_CONFIG_BASICAUTH_USERNAME || 'admin',
+    password: process.env.AM_CONFIG_BASICAUTH_PASSWORD || 'pass',
+  }
+};
+
+var appRouter = routes(routesConfig);
+app.use('/', appRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

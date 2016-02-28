@@ -1,10 +1,17 @@
 var express = require('express');
+var basicAuth = require('basic-auth-connect');
+
 var router = express.Router();
+
+var routes = function (config) {
+if (config.useBasicAuth) {
+  router.use(basicAuth(config.basicAuth.username, config.basicAuth.password));
+}
 
 // the home route
 router.get('/', function (req, res, next) {
     var connection_list = req.nconf.get('connections');
-    
+
     if(connection_list){
         // we have a connection and redirect to the first
         var first_conn = Object.keys(connection_list)[0];
@@ -968,7 +975,7 @@ router.post('/api/:conn/:db/:coll/:page', function (req, res, next) {
         if(req.params.page != undefined){
             page = parseInt(req.params.page);
         }
-         
+
         var skip = 0;
         if(page > 1){
             skip = (page - 1) * page_size
@@ -992,7 +999,7 @@ router.post('/api/:conn/:db/:coll/:page', function (req, res, next) {
                     }
                     res.status(200).json(return_data);
                 });
-            }            
+            }
         });
     });
 });
@@ -1247,4 +1254,7 @@ function clean_stats(array){
     return accum;
 }
 
-module.exports = router;
+return router;
+};
+
+module.exports = routes;
